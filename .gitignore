@@ -10,5 +10,5 @@ Build/*.sln
 Build/packages
 Build/*.opendb
 
-Tools/NoVR/obj
-Tools/NoVR/bin
+Tools/NoVRRemote/obj
+Tools/NoVRRemote/bin
