@@ -13,16 +13,18 @@ Preparation
 Build
 -----
 
-cd Build
-../Tools/premake5 vs2015
-Open NoVR.sln
-Select your platform (e.g x64)
-Build
+This tool has only been built/tested using Visual Studio 2015 on Windows 10 64 bit.
+
+- cd Build
+- ../Tools/premake5 vs2015
+- Open NoVR.sln
+- Select your platform (e.g x64)
+- Build
 
 Install
 -------
 
-The projects build output is set to overwrite the null driver from SteamVR.
+The projects build output is by default set to overwrite the null driver from SteamVR.
 
 Run
 ---
