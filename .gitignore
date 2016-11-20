@@ -1,0 +1,14 @@
+Build/obj
+Build/.vs
+Build/bin
+
+Build/*.db
+Build/*.vcxproj
+Build/*.filters
+Build/*.user
+Build/*.sln
+Build/packages
+Build/*.opendb
+
+Tools/NoVR/obj
+Tools/NoVR/bin
