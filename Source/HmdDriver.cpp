@@ -19,7 +19,7 @@ HmdDriver::HmdDriver(vr::IServerDriverHost * pDriverHost) :
 
 EVRInitError HmdDriver::Activate(uint32_t unObjectId)
 {
-  logDebug("HmdDriver::Activate()");
+  logTrace("HmdDriver::Activate()");
 
   objectId = unObjectId;
 
@@ -28,7 +28,7 @@ EVRInitError HmdDriver::Activate(uint32_t unObjectId)
 
 void HmdDriver::RunFrame()
 {
-  logDebug("HmdDriver::RunFrame()");
+  logTrace("HmdDriver::RunFrame()");
 
   if (objectId != vr::k_unTrackedDeviceIndexInvalid) {
     host->TrackedDevicePoseUpdated(objectId, GetPose());
@@ -37,19 +37,19 @@ void HmdDriver::RunFrame()
 
 void HmdDriver::Deactivate()
 {
-  logDebug("HmdDriver::Deactivate()");
+  logTrace("HmdDriver::Deactivate()");
 
   objectId = vr::k_unTrackedDeviceIndexInvalid;
 }
 
 void HmdDriver::EnterStandby()
 {
-  logDebug("HmdDriver::EnterStandby()");
+  logTrace("HmdDriver::EnterStandby()");
 }
 
 void * HmdDriver::GetComponent(const char * pchComponentNameAndVersion)
 {
-  logDebug("HmdDriver::GetComponent()");
+  logTrace("HmdDriver::GetComponent()");
 
   if (!_stricmp(pchComponentNameAndVersion, vr::IVRDisplayComponent_Version))
   {
@@ -61,7 +61,7 @@ void * HmdDriver::GetComponent(const char * pchComponentNameAndVersion)
 
 void HmdDriver::DebugRequest(const char * pchRequest, char * pchResponseBuffer, uint32_t unResponseBufferSize)
 {
-  logDebug("HmdDriver::DebugRequest()");
+  logTrace("HmdDriver::DebugRequest()");
 }
 
 bool HmdDriver::GetBoolTrackedDeviceProperty(ETrackedDeviceProperty prop, ETrackedPropertyError * pError)
@@ -82,7 +82,7 @@ bool HmdDriver::GetBoolTrackedDeviceProperty(ETrackedDeviceProperty prop, ETrack
 
 float HmdDriver::GetFloatTrackedDeviceProperty(ETrackedDeviceProperty prop, ETrackedPropertyError * pError)
 {
-  logDebug("HmdDriver::GetFloatTrackedDeviceProperty(%d)", prop);
+  logTrace("HmdDriver::GetFloatTrackedDeviceProperty(%d)", prop);
 
   vr::ETrackedPropertyError error = vr::TrackedProp_ValueNotProvidedByDevice;
   float fRetVal = 0;

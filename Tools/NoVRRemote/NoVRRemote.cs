@@ -50,12 +50,29 @@ namespace NoVR
         {
             InitializeComponent();
 
-            pipeClient =
-            new NamedPipeClientStream(".", "driver_sim",
+            pipeClient = new NamedPipeClientStream(".", "driver_sim",
                 PipeDirection.InOut, PipeOptions.None,
                 TokenImpersonationLevel.Identification);
 
             pipeClient.Connect();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (pipeClient != null)
+            {
+                t.Checksum = 0xBAADF00D;
+                t.TargetId = -1;
+
+                var bytes = GetBytes(t);
+                pipeClient.Write(bytes, 0, bytes.Length);
+                pipeClient.Flush();
+
+                pipeClient.Close();
+                pipeClient.Dispose();
+            }
+
+            base.OnClosed(e);
         }
 
         TrackingMessage t = new TrackingMessage();

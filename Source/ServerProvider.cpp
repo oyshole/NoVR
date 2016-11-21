@@ -9,7 +9,7 @@ public:
 
   void operator()()
   {
-    logDebug("Starting tracking thread.");
+    logTrace("Starting tracking thread.");
 
     hPipe = CreateNamedPipe(
       "\\\\.\\pipe\\driver_sim",
@@ -23,14 +23,14 @@ public:
     );
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-      logDebug("Could not create pipe.");
+      logWarning("Could not create pipe.");
     }
 
     logDebug("Pipe object created.");
     logDebug("Pipe waiting for client...");
 
     if (!ConnectNamedPipe(hPipe, nullptr)) {
-      logDebug("Could not connect pipe.");
+      logWarning("Could not connect pipe.");
       return;
     }
 
@@ -41,17 +41,28 @@ public:
       DWORD readBytes = 0;
       ::ReadFile(hPipe, buffer, sizeof(TrackingMessage), &readBytes, nullptr);
 
-      logDebug("Received message with size %d", readBytes);
+      logTrace("Received message with size %d", readBytes);
 
       if (readBytes != sizeof(TrackingMessage)) {
-        logDebug("Wrong message size.");
+        logWarning("Wrong message size. Dropping pipe connection.");
+        
+        if (!Reconnect()) return;
+
         continue;
       }
 
       auto & message = *reinterpret_cast<const TrackingMessage *>(buffer);
 
       if (message.checksum != 0xBAADF00D) {
-        logDebug("Wrong message checksum: %d", message.checksum);
+        logWarning("Wrong message checksum: %d", message.checksum);
+        continue;
+      }
+
+      if (message.targetId == -1 || readBytes != sizeof(TrackingMessage)) {
+        logDebug("Received disconnect message.");
+
+        if (!Reconnect()) return;
+
         continue;
       }
 
@@ -59,6 +70,25 @@ public:
       server->queue.push(message);
       server->qVariable.notify_one();
     }
+  }
+
+  bool Reconnect()
+  {
+    if (!DisconnectNamedPipe(hPipe)) {
+      logWarning("Could not disconnect pipe.");
+      return false;
+    }
+
+    logDebug("Disconnected from pipe client.");
+
+    if (!ConnectNamedPipe(hPipe, nullptr)) {
+      logWarning("Could not connect pipe.");
+      return false;
+    }
+
+    logDebug("Connected to new pipe client.");
+
+    return true;
   }
 
   bool done = false;
@@ -69,7 +99,7 @@ EVRInitError ServerTrackedDeviceProvider::Init(IDriverLog * pDriverLog, vr::ISer
 {
   if (!logger) { logger = std::make_unique<Log>(pDriverLog); }
 
-  logDebug("ServerTrackedDeviceProvider::Init()");
+  logTrace("ServerTrackedDeviceProvider::Init()");
 
   hmd = std::make_unique<HmdDriver>(pDriverHost);
   left = std::make_unique<ControllerDriver>(pDriverHost, true);
@@ -83,7 +113,7 @@ EVRInitError ServerTrackedDeviceProvider::Init(IDriverLog * pDriverLog, vr::ISer
 
 void ServerTrackedDeviceProvider::Cleanup()
 {
-  logDebug("ServerTrackedDeviceProvider::Cleanup()");
+  logTrace("ServerTrackedDeviceProvider::Cleanup()");
 
   if (trackingThread.joinable()) trackingThread.join();
 
@@ -94,21 +124,21 @@ void ServerTrackedDeviceProvider::Cleanup()
 
 const char * const * ServerTrackedDeviceProvider::GetInterfaceVersions()
 {
-  logDebug("ServerTrackedDeviceProvider::GetInterfaceVersions()");
+  logTrace("ServerTrackedDeviceProvider::GetInterfaceVersions()");
 
   return vr::k_InterfaceVersions;
 }
 
 uint32_t ServerTrackedDeviceProvider::GetTrackedDeviceCount()
 {
-  logDebug("ServerTrackedDeviceProvider::GetInterfaceVersions()");
+  logTrace("ServerTrackedDeviceProvider::GetInterfaceVersions()");
 
   return 3;
 }
 
 ITrackedDeviceServerDriver * ServerTrackedDeviceProvider::GetTrackedDeviceDriver(uint32_t unWhich)
 {
-  logDebug("ServerTrackedDeviceProvider::GetTrackedDeviceDriver(%d)", unWhich);
+  logTrace("ServerTrackedDeviceProvider::GetTrackedDeviceDriver(%d)", unWhich);
 
   if (unWhich == 0) {
     return hmd.get();
@@ -123,7 +153,7 @@ ITrackedDeviceServerDriver * ServerTrackedDeviceProvider::GetTrackedDeviceDriver
 
 ITrackedDeviceServerDriver * ServerTrackedDeviceProvider::FindTrackedDeviceDriver(const char * pchId)
 {
-  logDebug("ServerTrackedDeviceProvider::FindTrackedDeviceDriver(%s)", pchId);
+  logTrace("ServerTrackedDeviceProvider::FindTrackedDeviceDriver(%s)", pchId);
 
   if (left->HasIdentity(pchId)) return left.get();
   if (right->HasIdentity(pchId)) return right.get();
@@ -134,7 +164,7 @@ ITrackedDeviceServerDriver * ServerTrackedDeviceProvider::FindTrackedDeviceDrive
 
 void ServerTrackedDeviceProvider::RunFrame()
 {
-  logDebug("ServerTrackedDeviceProvider::RunFrame(ThreadId:%d)", std::this_thread::get_id());
+  logTrace("ServerTrackedDeviceProvider::RunFrame(ThreadId:%d)", std::this_thread::get_id());
 
   if (hmd) {
     {
@@ -165,17 +195,17 @@ void ServerTrackedDeviceProvider::RunFrame()
 
 bool ServerTrackedDeviceProvider::ShouldBlockStandbyMode()
 {
-  logDebug("ServerTrackedDeviceProvider::ShouldBlockStandbyMode()");
+  logTrace("ServerTrackedDeviceProvider::ShouldBlockStandbyMode()");
 
   return false;
 }
 
 void ServerTrackedDeviceProvider::EnterStandby()
 {
-  logDebug("ServerTrackedDeviceProvider::EnterStandby()");
+  logTrace("ServerTrackedDeviceProvider::EnterStandby()");
 }
 
 void ServerTrackedDeviceProvider::LeaveStandby()
 {
-  logDebug("ServerTrackedDeviceProvider::LeaveStandby()");
+  logTrace("ServerTrackedDeviceProvider::LeaveStandby()");
 }

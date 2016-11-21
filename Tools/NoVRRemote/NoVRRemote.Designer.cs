@@ -37,6 +37,7 @@ namespace NoVR
             this.idBox.Name = "idBox";
             this.idBox.Size = new System.Drawing.Size(100, 22);
             this.idBox.TabIndex = 1;
+            this.idBox.Text = "0";
             this.idBox.TextChanged += new System.EventHandler(this.idBox_TextChanged);
             // 
             // label1
@@ -63,6 +64,7 @@ namespace NoVR
             this.xBox.Name = "xBox";
             this.xBox.Size = new System.Drawing.Size(100, 22);
             this.xBox.TabIndex = 3;
+            this.xBox.Text = "0";
             this.xBox.TextChanged += new System.EventHandler(this.xBox_TextChanged);
             // 
             // label3
@@ -80,6 +82,7 @@ namespace NoVR
             this.yBox.Name = "yBox";
             this.yBox.Size = new System.Drawing.Size(100, 22);
             this.yBox.TabIndex = 5;
+            this.yBox.Text = "0";
             this.yBox.TextChanged += new System.EventHandler(this.yBox_TextChanged);
             // 
             // label4
@@ -97,9 +100,10 @@ namespace NoVR
             this.zBox.Name = "zBox";
             this.zBox.Size = new System.Drawing.Size(100, 22);
             this.zBox.TabIndex = 7;
+            this.zBox.Text = "0";
             this.zBox.TextChanged += new System.EventHandler(this.zBox_TextChanged);
             // 
-            // VrSimRemote
+            // NoVRRemote
             // 
             this.ClientSize = new System.Drawing.Size(377, 203);
             this.Controls.Add(this.label4);

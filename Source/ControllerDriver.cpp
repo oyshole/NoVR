@@ -10,7 +10,7 @@ ControllerDriver::ControllerDriver(vr::IServerDriverHost * pDriverHost, bool lef
 
 EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 {
-  logDebug("ControllerDriver::Activate(%d)", unObjectId);
+  logTrace("ControllerDriver::Activate(%d)", unObjectId);
 
   objectId = unObjectId;
 
@@ -19,7 +19,7 @@ EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 
 void ControllerDriver::RunFrame()
 {
-  logDebug("ControllerDriver::RunFrame()");
+  logTrace("ControllerDriver::RunFrame()");
 
   if (objectId != vr::k_unTrackedDeviceIndexInvalid) {
     host->TrackedDevicePoseUpdated(objectId, GetPose());
@@ -32,7 +32,7 @@ void ControllerDriver::RunFrame()
 
 VRControllerState_t ControllerDriver::GetControllerState()
 {
-  logDebug("ControllerDriver::GetControllerState()");
+  logTrace("ControllerDriver::GetControllerState()");
 
   VRControllerState_t state = {};
 
@@ -59,21 +59,21 @@ bool ControllerDriver::TriggerHapticPulse(uint32_t unAxisId, uint16_t usPulseDur
 
 void ControllerDriver::Deactivate()
 {
-  logDebug("ControllerDriver::Deactivate()");
+  logTrace("ControllerDriver::Deactivate()");
   objectId = vr::k_unTrackedDeviceIndexInvalid;
 }
 
 void ControllerDriver::EnterStandby()
 {
-  logDebug("ControllerDriver::EnterStandby()");
+  logTrace("ControllerDriver::EnterStandby()");
 }
 
 void * ControllerDriver::GetComponent(const char * pchComponentNameAndVersion)
 {
-  logDebug("ControllerDriver::GetComponent(%s)", pchComponentNameAndVersion);
+  logTrace("ControllerDriver::GetComponent(%s)", pchComponentNameAndVersion);
 
   if (!_stricmp(pchComponentNameAndVersion, vr::IVRControllerComponent_Version)) {
-    logDebug("ControllerDriver::ReturnComponent", pchComponentNameAndVersion);
+    logTrace("ControllerDriver::ReturnComponent", pchComponentNameAndVersion);
     return (vr::IVRControllerComponent *)this;
   }
 
@@ -83,12 +83,12 @@ void * ControllerDriver::GetComponent(const char * pchComponentNameAndVersion)
 
 void ControllerDriver::DebugRequest(const char * pchRequest, char * pchResponseBuffer, uint32_t unResponseBufferSize)
 {
-  logDebug("ControllerDriver::DebugRequest()");
+  logTrace("ControllerDriver::DebugRequest()");
 }
 
 bool ControllerDriver::GetBoolTrackedDeviceProperty(ETrackedDeviceProperty prop, ETrackedPropertyError * pError)
 {
-  logDebug("ControllerDriver::GetBoolTrackedDeviceProperty(%d)", prop);
+  logTrace("ControllerDriver::GetBoolTrackedDeviceProperty(%d)", prop);
 
   *pError = vr::TrackedProp_Success;
 
@@ -105,7 +105,7 @@ bool ControllerDriver::GetBoolTrackedDeviceProperty(ETrackedDeviceProperty prop,
 
 float ControllerDriver::GetFloatTrackedDeviceProperty(ETrackedDeviceProperty prop, ETrackedPropertyError * pError)
 {
-  logDebug("ControllerDriver::GetFloatTrackedDeviceProperty(%d)", prop);
+  logTrace("ControllerDriver::GetFloatTrackedDeviceProperty(%d)", prop);
 
   vr::ETrackedPropertyError error = vr::TrackedProp_ValueNotProvidedByDevice;
   float fRetVal = 0;
@@ -127,7 +127,7 @@ float ControllerDriver::GetFloatTrackedDeviceProperty(ETrackedDeviceProperty pro
 
 int32_t ControllerDriver::GetInt32TrackedDeviceProperty(ETrackedDeviceProperty prop, ETrackedPropertyError * pError)
 {
-  logDebug("ControllerDriver::GetInt32TrackedDeviceProperty(%d)", prop);
+  logTrace("ControllerDriver::GetInt32TrackedDeviceProperty(%d)", prop);
 
   int32_t nRetVal = 0;
   vr::ETrackedPropertyError error = vr::TrackedProp_UnknownProperty;
@@ -154,7 +154,7 @@ int32_t ControllerDriver::GetInt32TrackedDeviceProperty(ETrackedDeviceProperty p
 
 uint64_t ControllerDriver::GetUint64TrackedDeviceProperty(ETrackedDeviceProperty prop, ETrackedPropertyError * pError)
 {
-  logDebug("ControllerDriver::GetUint64TrackedDeviceProperty(%d)", prop);
+  logTrace("ControllerDriver::GetUint64TrackedDeviceProperty(%d)", prop);
 
   *pError = vr::TrackedProp_Success;
 
@@ -178,7 +178,7 @@ HmdMatrix34_t ControllerDriver::GetMatrix34TrackedDeviceProperty(ETrackedDeviceP
 
 uint32_t ControllerDriver::GetStringTrackedDeviceProperty(ETrackedDeviceProperty prop, char * pchValue, uint32_t unBufferSize, ETrackedPropertyError * pError)
 {
-  logDebug("ControllerDriver::GetStringTrackedDeviceProperty(%d)", prop);
+  logTrace("ControllerDriver::GetStringTrackedDeviceProperty(%d)", prop);
 
   std::string sValue = GetStringTrackedDeviceProperty(prop, pError);
 
@@ -233,16 +233,16 @@ DriverPose_t ControllerDriver::GetPose()
 
   auto t = timer.elapsedSeconds();
 
-  glm::dquat headRotation = glm::angleAxis(glm::sin(t * 0.5) * 0.3, glm::dvec3(0, 1, 0));
+  glm::dquat headRotation = glm::angleAxis(glm::sin(t * 0.5) * 0.0, glm::dvec3(0, 1, 0));
 
-  double xOffset = left ? -0.2 : 0.2;
+  double xOffset = left ? -0.3 : 0.3;
   glm::dvec3 offset = glm::dvec3(
-    xOffset + 0.1 * sin(t * 3.76),
-    1.3 + 0.1 * sin(t * 5.0 + (left ? 0.7 : 0)),
+    xOffset + 0.01 * sin(t * 1.76),
+    1.5 + 0.01 * sin(t * 1.0 + (left ? 0.7 : 0)),
     -0.5f
   );
 
-  glm::dquat rotation = glm::angleAxis(glm::sin(t * 6.0) * 0.4, glm::dvec3(1, 0, 0));
+  glm::dquat rotation = glm::angleAxis(glm::sin(t * 11.0) * 0.02, glm::dvec3(1, 0, 0));
 
   pose.qRotation = toHmd(headRotation * rotation);
 

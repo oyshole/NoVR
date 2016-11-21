@@ -37,6 +37,17 @@ struct TrackingMessage
   int trigger;
 };
 
+enum LogLevel
+{
+  Trace = 0,
+  Debug,
+  Info,
+  Warning,
+  Error,
+  Fatal
+};
+
+constexpr int logLevel = 1;
 extern std::unique_ptr<class Log> logger;
 
 class Log
@@ -84,14 +95,40 @@ public:
     log(text, args...);
   }
 
+  int logLevel = 0;
+
 private:
   vr::IDriverLog * driverLog = nullptr;
 };
 
 template<typename... Args>
+void logTrace(const char * text, Args... args)
+{
+  if (logger && logLevel <= Trace) {
+    logger->print(text, args...);
+  }
+}
+
+template<typename... Args>
 void logDebug(const char * text, Args... args)
 {
-  if (logger) {
+  if (logger && logLevel <= Debug) {
+    logger->print(text, args...);
+  }
+}
+
+template<typename... Args>
+void logInfo(const char * text, Args... args)
+{
+  if (logger && logLevel <= Info) {
+    logger->print(text, args...);
+  }
+}
+
+template<typename... Args>
+void logWarning(const char * text, Args... args)
+{
+  if (logger && logLevel <= Warning) {
     logger->print(text, args...);
   }
 }

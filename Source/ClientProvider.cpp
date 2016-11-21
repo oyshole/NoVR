@@ -4,7 +4,7 @@ EVRInitError ClientTrackedDeviceProvider::Init(EClientDriverMode eDriverMode, ID
 {
   if (!logger) { logger = std::make_unique<Log>(pDriverLog); }
 
-  logDebug("ClientTrackedDeviceProvider::Init()");
+  logTrace("ClientTrackedDeviceProvider::Init()");
 
   host = pDriverHost;
 
@@ -18,26 +18,26 @@ EVRInitError ClientTrackedDeviceProvider::Init(EClientDriverMode eDriverMode, ID
 
 void ClientTrackedDeviceProvider::Cleanup()
 {
-  logDebug("ClientTrackedDeviceProvider::Cleanup()");
+  logTrace("ClientTrackedDeviceProvider::Cleanup()");
 }
 
 bool ClientTrackedDeviceProvider::BIsHmdPresent(const char * pchUserConfigDir)
 {
-  logDebug("ClientTrackedDeviceProvider::BIsHmdPresent()");
+  logTrace("ClientTrackedDeviceProvider::BIsHmdPresent()");
 
   return true;
 }
 
 EVRInitError ClientTrackedDeviceProvider::SetDisplayId(const char * pchDisplayId)
 {
-  logDebug("ClientTrackedDeviceProvider::SetDisplayId(%s)", pchDisplayId);
+  logTrace("ClientTrackedDeviceProvider::SetDisplayId(%s)", pchDisplayId);
 
   return VRInitError_None;
 }
 
 HiddenAreaMesh_t ClientTrackedDeviceProvider::GetHiddenAreaMesh(EVREye eEye, EHiddenAreaMeshType type)
 {
-  logDebug("ClientTrackedDeviceProvider::GetHiddenAreaMesh()");
+  logTrace("ClientTrackedDeviceProvider::GetHiddenAreaMesh()");
 
   vr::HiddenAreaMesh_t mesh = {};
 
@@ -46,7 +46,7 @@ HiddenAreaMesh_t ClientTrackedDeviceProvider::GetHiddenAreaMesh(EVREye eEye, EHi
 
 uint32_t ClientTrackedDeviceProvider::GetMCImage(uint32_t * pImgWidth, uint32_t * pImgHeight, uint32_t * pChannels, void * pDataBuffer, uint32_t unBufferLen)
 {
-  logDebug("ClientTrackedDeviceProvider::GetMCImage()");
+  logTrace("ClientTrackedDeviceProvider::GetMCImage()");
 
   return 0;
 }
