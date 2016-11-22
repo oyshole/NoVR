@@ -123,7 +123,7 @@ EVRInitError ServerTrackedDeviceProvider::Init(IDriverLog * pDriverLog, vr::ISer
   devices.push_back(right.get());
 
   if (settings.numTrackingStations) {
-    logDebug("Creating %d tracking stations.");
+    logDebug("Creating %d tracking stations.", settings.numTrackingStations);
 
     for (int i = 0; i < settings.numTrackingStations; ++i) {
       trackers.emplace_back(std::make_unique<TrackerDriver>(pDriverHost, i));
