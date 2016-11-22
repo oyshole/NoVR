@@ -2,11 +2,11 @@
 
 #include "DeviceDriver.h"
 
-class ControllerDriver : public DeviceDriver, public vr::IVRControllerComponent
+class TrackerDriver : public DeviceDriver
 {
 public:
-  ControllerDriver(vr::IServerDriverHost * pDriverHost, bool left);
-  
+  TrackerDriver(vr::IServerDriverHost * pDriverHost, int trackerIndex);
+
   EVRInitError Activate(uint32_t unObjectId) override;
   void Deactivate() override;
   void EnterStandby() override;
@@ -23,9 +23,6 @@ public:
 
   void RunFrame();
 
-  VRControllerState_t GetControllerState() override;
-  bool TriggerHapticPulse(uint32_t unAxisId, uint16_t usPulseDurationMicroseconds) override;
-
 private:
-  bool left;
+  int trackerIndex;
 };

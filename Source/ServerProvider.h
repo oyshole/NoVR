@@ -1,5 +1,6 @@
 #include "HmdDriver.h"
 #include "ControllerDriver.h"
+#include "TrackerDriver.h"
 
 #include <queue>
 #include <mutex>
@@ -23,6 +24,10 @@ private:
   std::unique_ptr<HmdDriver> hmd;
   std::unique_ptr<ControllerDriver> left;
   std::unique_ptr<ControllerDriver> right;
+  std::vector<std::unique_ptr<TrackerDriver>> trackers;
+
+  std::vector<DeviceDriver *> devices;
+
   std::thread trackingThread;
 
 public:

@@ -1,17 +1,25 @@
 #include "ClientProvider.h"
 
+#include "Settings.h"
+
 EVRInitError ClientTrackedDeviceProvider::Init(EClientDriverMode eDriverMode, IDriverLog * pDriverLog, vr::IClientDriverHost * pDriverHost, const char * pchUserDriverConfigDir, const char * pchDriverInstallDir)
 {
   if (!logger) { logger = std::make_unique<Log>(pDriverLog); }
 
   logTrace("ClientTrackedDeviceProvider::Init()");
 
-  host = pDriverHost;
-
   if (eDriverMode == ClientDriverMode_Watchdog)
   {
     return VRInitError_Init_LowPowerWatchdogNotSupported;
   }
+
+  settings.update(pDriverHost ? (IVRSettings *)pDriverHost->GetGenericInterface(IVRSettings_Version) : nullptr);
+
+  if (!settings.enabled) {
+    return VRInitError_Driver_HmdDisplayNotFound;
+  }
+
+  host = pDriverHost;
 
   return VRInitError_None;
 }

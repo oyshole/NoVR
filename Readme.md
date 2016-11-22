@@ -32,3 +32,10 @@ Run
 Run any application using OpenVR/SteamVR
 
 Build and run the NoVRRemote application to remote control the driver.
+
+Add the following section to steamvr.vrsettings (probably found at %SteamInstallLocation%/config/steamvr.vrsettings)
+'''
+"novr" : {
+  "enabled" : true,
+}
+'''

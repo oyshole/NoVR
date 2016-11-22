@@ -2,7 +2,7 @@
 
 #include "DeviceDriver.h"
 
-class HmdDriver : public DeviceDriver, public vr::ITrackedDeviceServerDriver, public vr::IVRDisplayComponent
+class HmdDriver : public DeviceDriver, public vr::IVRDisplayComponent
 {
 public:
   HmdDriver(vr::IServerDriverHost * pDriverHost);

@@ -1,5 +1,7 @@
 #include "ServerProvider.h"
 
+#include "Settings.h"
+
 class TrackingWorker
 {
 public:
@@ -101,9 +103,34 @@ EVRInitError ServerTrackedDeviceProvider::Init(IDriverLog * pDriverLog, vr::ISer
 
   logTrace("ServerTrackedDeviceProvider::Init()");
 
+  if (pDriverHost) {
+    settings.update(pDriverHost->GetSettings(vr::IVRSettings_Version));
+  } else {
+    logDebug("No host.");
+  }
+
+  if (!settings.enabled) {
+    logDebug("Returning VRInitError_Init_HmdNotFound.");
+    return VRInitError_Init_HmdNotFound;
+  }
+
   hmd = std::make_unique<HmdDriver>(pDriverHost);
   left = std::make_unique<ControllerDriver>(pDriverHost, true);
   right = std::make_unique<ControllerDriver>(pDriverHost, false);
+
+  devices.push_back(hmd.get());
+  devices.push_back(left.get());
+  devices.push_back(right.get());
+
+  if (settings.numTrackingStations) {
+    logDebug("Creating %d tracking stations.");
+
+    for (int i = 0; i < settings.numTrackingStations; ++i) {
+      trackers.emplace_back(std::make_unique<TrackerDriver>(pDriverHost, i));
+
+      devices.push_back(trackers.back().get());
+    }
+  }
 
   TrackingWorker worker(this);
   trackingThread = std::thread(worker);
@@ -120,6 +147,8 @@ void ServerTrackedDeviceProvider::Cleanup()
   hmd.release();
   left.release();
   right.release();
+
+  trackers.clear();
 }
 
 const char * const * ServerTrackedDeviceProvider::GetInterfaceVersions()
@@ -133,31 +162,25 @@ uint32_t ServerTrackedDeviceProvider::GetTrackedDeviceCount()
 {
   logTrace("ServerTrackedDeviceProvider::GetInterfaceVersions()");
 
-  return 3;
+  return static_cast<uint32_t>(devices.size());
 }
 
 ITrackedDeviceServerDriver * ServerTrackedDeviceProvider::GetTrackedDeviceDriver(uint32_t unWhich)
 {
   logTrace("ServerTrackedDeviceProvider::GetTrackedDeviceDriver(%d)", unWhich);
 
-  if (unWhich == 0) {
-    return hmd.get();
-  } else if (unWhich == 1) {
-    return left.get();
-  } else if (unWhich == 2) {
-    return right.get();
-  }
+  if (unWhich == -1 || unWhich >= devices.size()) return nullptr;
 
-  return nullptr;
+  return devices[unWhich];
 }
 
 ITrackedDeviceServerDriver * ServerTrackedDeviceProvider::FindTrackedDeviceDriver(const char * pchId)
 {
   logTrace("ServerTrackedDeviceProvider::FindTrackedDeviceDriver(%s)", pchId);
 
-  if (left->HasIdentity(pchId)) return left.get();
-  if (right->HasIdentity(pchId)) return right.get();
-  if (hmd->HasIdentity(pchId)) return hmd.get();
+  for (auto & d : devices) {
+    if (d->HasIdentity(pchId)) return d;
+  }
 
   return nullptr;
 }
@@ -166,7 +189,7 @@ void ServerTrackedDeviceProvider::RunFrame()
 {
   logTrace("ServerTrackedDeviceProvider::RunFrame(ThreadId:%d)", std::this_thread::get_id());
 
-  if (hmd) {
+  if (devices.size()) {
     {
       std::lock_guard<std::mutex> lock(qMutex);
 
@@ -174,22 +197,17 @@ void ServerTrackedDeviceProvider::RunFrame()
         auto message = queue.front();
         queue.pop();
 
-        if (message.targetId == 0) {
-          hmd->message = message;
-          hmd->hasMessage = true;
-        } else if (message.targetId == 1) {
-          left->message = message;
-          left->hasMessage = true;
-        } else if (message.targetId == 2) {
-          right->message = message;
-          right->hasMessage = true;
+        for (auto d : devices) {
+          if (d->GetId() == message.targetId) {
+            d->Post(message);
+          }
         }
       }
     }
 
-    hmd->RunFrame();
-    left->RunFrame();
-    right->RunFrame();
+    for (auto d : devices) {
+      d->RunFrame();
+    }
   }
 }
 

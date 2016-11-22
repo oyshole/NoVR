@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "Timer.h"
 
-class DeviceDriver
+class DeviceDriver : public vr::ITrackedDeviceServerDriver
 {
 public:
   DeviceDriver(vr::IServerDriverHost * host);
@@ -11,8 +11,10 @@ public:
 
   bool HasIdentity(const char * id) { return serialNumber == id; }
 
-  TrackingMessage message;
-  bool hasMessage = false;
+  uint32_t GetId() const { return objectId; }
+  void Post(TrackingMessage message) { this->message = message; hasMessage = true; }
+
+  virtual void RunFrame() = 0;
 
 protected:
   vr::IServerDriverHost * host;
@@ -20,6 +22,9 @@ protected:
 
   std::string serialNumber;
   std::string modelNumber;
+
+  TrackingMessage message;
+  bool hasMessage = false;
 
   Timer timer = Timer::startNew();
 };
